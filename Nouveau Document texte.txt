@@ -10,7 +10,7 @@ access-list 1 permit 192.168.10.0 0.0.0.255
 ip nat inside source list 1 int g1/0 overload
 ip access-list ext LAN-OUT
 permit ip host 192.168.10.10 any
-deny tcp host 192.168.10.20 host 203.0.113.10 eq 80
+deny tcp host 192.168.10.20 host 203.0.113.1 eq 80
 permit ip 192.168.10.0 0.0.0.255 any
 deny ip any any
 exit
