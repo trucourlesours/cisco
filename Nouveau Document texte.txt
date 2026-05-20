@@ -2,36 +2,30 @@ en
 conf t
 int g0/0
 ip nat inside
+ip access-group LAN-OUT in
 exit
 int g1/0
 ip nat outside
+ip access-group WAN-IN in
 exit
 access-list 1 permit 192.168.10.0 0.0.0.255
-ip nat inside source list 1 int g1/0 overload
-ip access-list ext LAN-OUT
-permit ip host 192.168.10.10 any
-deny tcp host 192.168.10.20 host 203.0.113.1 eq 80
-permit ip 192.168.10.0 0.0.0.255 any
-deny ip any any
+ip nat inside source list 1 interface g1/0 overload
+ip access-list extended LAN-OUT
+deny tcp host 192.168.10.20 host 203.0.113.1 eq 80 log
+permit ip any any
 exit
-int g0/0
-ip access-group LAN-OUT in
-exit
-ip access-list ext WAN-IN
+ip access-list extended WAN-IN
 permit icmp any host 192.168.10.10 echo
 permit tcp any any established
-deny ip any 192.168.10.0 0.0.0.255
-exit
-int g1/0
-ip access-group WAN-IN in
+deny ip any 192.168.10.0 0.0.0.255 log
 exit
 logging console
 logging buffered 4096
-
+do show access-lists
+do show ip nat translations
 
 Fais SSH séparément après (à cause du crypto key generate rsa qui est interactif) :
 crypto key generate rsa
-
 
 → tape 1024 quand ça demande, puis :
 ip ssh ver 2
@@ -42,6 +36,76 @@ radius-server host [vraie_IP] auth-port [vrai_port] key [vrai_secret]
 line vty 0 4
 transport input ssh
 login authentication default
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+en
+conf t
+int g0/0
+ip nat inside
+exit
+int g1/0
+ip nat outside
+exit
+access-list 1 permit [IP_RESEAU] [WILDCARD]
+ip nat inside source list 1 interface g1/0 overload
+ip access-list extended LAN-OUT
+deny tcp host [IP_USER] host [IP_SERVEUR_WEB] eq 80
+permit ip any any
+exit
+int g0/0
+ip access-group LAN-OUT in
+exit
+ip access-list extended WAN-IN
+permit icmp any host [IP_ADMIN] echo
+permit tcp any any established
+deny ip any [IP_RESEAU] [WILDCARD]
+exit
+int g1/0
+ip access-group WAN-IN in
+exit
+logging console
+logging buffered 4096
+
+Fais SSH séparément après (à cause du crypto key generate rsa qui est interactif) :
+crypto key generate rsa
+
+→ tape 1024 quand ça demande, puis :
+ip ssh ver 2
+aaa new-model
+aaa authentication login default group radius local
+aaa authentication enable default group radius local
+radius-server host [vraie_IP] auth-port [vrai_port] key [vrai_secret]
+line vty 0 4
+transport input ssh
+login authentication default
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
