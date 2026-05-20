@@ -42,3 +42,52 @@ radius-server host [vraie_IP] auth-port [vrai_port] key [vrai_secret]
 line vty 0 4
 transport input ssh
 login authentication default
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+nat :
+ip nat Inside /outside
+access-list nom-de-liste permit adresses-qui-peuvent-sortir
+ip nat inside source list nom-de-liste interface N° overload
+
+
+firewall :
+
+ip access-list extended nom-de-la-liste
+
+(permit/deny) (ip/tcp/icmp) (origine : any/host+adresse de l'hote/adresse réseau +wildcard) (destination any/host adresse de l'hote) (parametre)
+
+
+SSH :
+
+
+crypto key generate rsa
+ip ssh version 2
+line vty 0 n°_De_la_dernière_ligne_de_terminal
+transport input ssh
+
+aaa new-model
+aaa authentication login default group radius local
+aaa authentication enable default group radius local
+radius-server host IP_du_Serveur_AAA auth-port Port_configuré_dans_AAA key CodeSecret
+line vty 0 n°_De_la_dernière_ligne_de_terminal
+login authentication default
+
+Connection SSH  au router :
+
+ssh –l Nom_d'utilisateur IP_du Router
